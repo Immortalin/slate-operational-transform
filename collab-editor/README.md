@@ -1,3 +1,12 @@
+## Literature
+
+https://www.tiny.cloud/blog/real-time-collaborative-editing-slate-js/
+https://github.com/qqwee/slate-ottype
+https://github.com/ksimons/ot-slatejs
+https://github.com/quilljs/delta/blob/e5517726f6665e293e851457b1cc0c7a17576e50/src/Delta.ts#L390
+
+
+## Create React App
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
