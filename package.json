@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@teamwork/websocket-json-stream": "^2.0.0",
+    "sharedb": "^1.3.3",
     "slate": "^0.57.2",
     "ws": "^7.2.3"
   }

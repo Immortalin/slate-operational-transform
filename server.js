@@ -3,8 +3,11 @@ const port = 9080
 console.log("Server starting on port:", port)
 const wss = new WebSocket.Server({ port: port });
 // import {Editor} from "slate"
+const defaultValue = require("./defaultValue")
 const slate = require("slate")
 const Editor = slate.Editor
+
+let currentServerValue = defaultValue
 
 wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(data) {
@@ -22,47 +25,6 @@ wss.on('connection', function connection(ws) {
     });
   });
 });
-
-let currentServerValue = [
-  {
-    type: 'paragraph',
-    children: [
-      { text: 'This is editable and pulled directly from server' },
-      { text: 'rich', bold: true },
-      { text: ' text, ' },
-      { text: 'much', italic: true },
-      { text: ' better than a ' },
-      { text: '<textarea>', code: true },
-      { text: '!' },
-    ],
-  },
-  {
-    type: 'paragraph',
-    children: [
-      {
-        text:
-          "Since it's rich text, you can do things like turn a selection of text ",
-      },
-      { text: 'bold', bold: true },
-      {
-        text:
-          ', or add a semantically rendered block quote in the middle of the page, like this:',
-      },
-    ],
-  },
-  {
-    type: 'block-quote',
-    children: [{ text: 'A wise quote.' }],
-  },
-  {
-    type: 'paragraph',
-    children: [{ text: 'Try it out for yourself!' }, { text: 'bold', bold: true },
-    {
-      text:
-        'Operation transforms will let things to magically converge into the same state.',
-    },],
-  },
-]
 
 // const withTest = editor => {
 //   const { isInline, isVoid } = editor

@@ -6,8 +6,12 @@ import { withHistory } from 'slate-history'
 
 import { Button, Icon, Toolbar } from './Components'
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import * as sharedb from 'sharedb/lib/client'
+import * as jsondiff from 'json0-ot-diff'
 
 const ws_client = new ReconnectingWebSocket("ws://localhost:9080")
+const connection = new sharedb.Connection(ws_client)
+const doc = connection.get('my_documents', 'hello_world')
 
 const HOTKEYS = {
   'mod+b': 'bold',
@@ -20,55 +24,88 @@ const LIST_TYPES = ['numbered-list', 'bulleted-list']
 
 const RichTextExample = () => {
   // const [transmitQueue, enQueue] = useState([])
-
+  // const [oldValue, setOldValue] = useState()
+  const oldValue = useRef()
   useEffect(() => {
-    ws_client.onmessage = msg => {
-      // console.log(msg.data)
-      const ops = JSON.parse(msg.data)
+    doc.subscribe(() => {
+      console.log("Subscribed:")
+      console.log(doc.data)
+      syncMutex.current = true
+      // editor.selection = doc.data.selection
+      setValue(doc.data.children)
+      syncMutex.current = false
+    })
 
-      // ops.forEach(op => {
-      //   console.log("Received:")
-      //   console.log(op)
-      //   editor.apply(op)
-      // });
+    doc.on('op', () => {
+      console.log("Op:")
+      console.log(doc.data)
       syncMutex.current = true
-      Editor.withoutNormalizing(editor, () => {
-        ops.forEach(op => {
-          console.log("Received:")
-          console.log(op)
-          editor.apply(op)
-        });
-      })
-      syncMutex.current = true
-    }
-  })
+      editor.selection = doc.data.selection
+      setValue(doc.data.children)
+      syncMutex.current = false
+    })
+
+  }, [])
+
+  // useEffect(() => {
+  //   ws_client.onmessage = msg => {
+  //     // console.log(msg.data)
+  //     const ops = JSON.parse(msg.data)
+
+  //     // ops.forEach(op => {
+  //     //   console.log("Received:")
+  //     //   console.log(op)
+  //     //   editor.apply(op)
+  //     // });
+  //     syncMutex.current = true
+  //     Editor.withoutNormalizing(editor, () => {
+  //       ops.forEach(op => {
+  //         console.log("Received:")
+  //         console.log(op)
+  //         editor.apply(op)
+  //       });
+  //     })
+  //     syncMutex.current = true
+  //   }
+  // })
 
 
 
   const [value, setValue] = useState(initialValue)
+  const oldSelection = useRef({ anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } })
+  // const [value, setValue] = useState([])
   const renderElement = useCallback(props => <Element {...props} />, [])
   const renderLeaf = useCallback(props => <Leaf {...props} />, [])
   const editor = useMemo(() => withHistory(withReact(createEditor())), [])
   // See also: https://github.com/ianstormtaylor/slate/issues/3493
   const syncMutex = useRef(false) // prevents infinite loops due to onchange firing
+  const sendOp = (...args) => {
+    return new Promise((resolve, reject) => {
+      doc.submitOp(...args, () => {
+        resolve()
+      })
+    })
+  }
 
   return (
-    <Slate editor={editor} value={value} onChange={value => {
-      setValue(value)
-      // console.log("ONCHANGE HAS BEEN CALLED!")
-      // console.log(editor.operations)
-      // if (ws_client.readyState === WebSocket.OPEN) {
-      //   if (transmitQueue.length > 0) {
-      //     transmitQueue.forEach(op => ws_client.send(JSON.stringify(op)))
-      //     enQueue([])
-      //   }
-      if (!syncMutex.current) {
-        // ws_client.send(JSON.stringify(editor.operations))
-        ws_client.send(JSON.stringify(editor.operations.filter((op) => op.type !== "set_selection")))
+    <Slate editor={editor} value={value} onChange={newChildren => {
+      oldValue.current = { selection: oldSelection.current, children: value }
+      const diff = jsondiff(oldValue, { selection: editor.selection, children: newChildren })
+      // setValue(newValue)
+      oldSelection.current = editor.selection
+      if (oldValue !== undefined) {
       }
-      // } else {
-      //   enQueue(editor.operations)
-      // }
+      // console.log(editor.value)
+      if (!syncMutex.current) {
+        // if (diff.length > 0) {
+        if (Array.isArray(diff) && diff.length) {
+          console.log("diff:")
+          console.log(diff)
+          sendOp(diff)
+        }
+        // ws_client.send(JSON.stringify(editor.operations))
+        // ws_client.send(JSON.stringify(editor.operations.filter((op) => op.type !== "set_selection")))
+      }
     }
     }>
       <Toolbar>
@@ -216,38 +253,43 @@ const MarkButton = ({ format, icon }) => {
 const initialValue = [
   {
     type: 'paragraph',
-    children: [
-      { text: 'This is editable ' },
-      { text: 'rich', bold: true },
-      { text: ' text, ' },
-      { text: 'much', italic: true },
-      { text: ' better than a ' },
-      { text: '<textarea>', code: true },
-      { text: '!' },
-    ],
-  },
-  {
-    type: 'paragraph',
-    children: [
-      {
-        text:
-          "Since it's rich text, you can do things like turn a selection of text ",
-      },
-      { text: 'bold', bold: true },
-      {
-        text:
-          ', or add a semantically rendered block quote in the middle of the page, like this:',
-      },
-    ],
-  },
-  {
-    type: 'block-quote',
-    children: [{ text: 'A wise quote.' }],
-  },
-  {
-    type: 'paragraph',
-    children: [{ text: 'Try it out for yourself!' }],
-  },
+    children: [{ text: '' }]
+  }
+
+  // {
+  //   type: 'paragraph',
+  //   children: [
+  //     { text: 'This is editable ' },
+  //     { text: 'rich', bold: true },
+  //     { text: ' text, ' },
+  //     { text: 'much', italic: true },
+  //     { text: ' better than a ' },
+  //     { text: '<textarea>', code: true },
+  //     { text: '!' },
+  //   ],
+  // },
+  // {
+  //   type: 'paragraph',
+  //   children: [
+  //     {
+  //       text:
+  //         "Since it's rich text, you can do things like turn a selection of text ",
+  //     },
+  //     { text: 'bold', bold: true },
+  //     {
+  //       text:
+  //         ', or add a semantically rendered block quote in the middle of the page, like this:',
+  //     },
+  //   ],
+  // },
+  // {
+  //   type: 'block-quote',
+  //   children: [{ text: 'A wise quote.' }],
+  // },
+  // {
+  //   type: 'paragraph',
+  //   children: [{ text: 'Try it out for yourself!' }],
+  // },
 ]
 
 export default RichTextExample
