@@ -1,4 +1,18 @@
 # Slate JS Editor Operational Transform Example using ShareDB
+
+## Instructions
+```shell
+cd slate-operational-transform
+npm install
+npm start
+
+```
+And in another shell
+```shell
+cd slate-operational-transform/collab_editor 
+yarn install
+yarn start
+```
 ## Literature
 
 https://www.tiny.cloud/blog/real-time-collaborative-editing-slate-js/
