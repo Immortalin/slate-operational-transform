@@ -13,6 +13,7 @@ cd slate-operational-transform/collab_editor
 yarn install
 yarn start
 ```
+Open two different browsers and navigate to localhost:3000, all changes in one browser should be mirrored in another.
 ## Literature
 
 https://www.tiny.cloud/blog/real-time-collaborative-editing-slate-js/
