@@ -16,8 +16,8 @@ yarn start
 Open two different browsers and navigate to `localhost:3000`, all changes in one browser should be mirrored in another.
 ## Caveat Emptor
 - This is a demo, there are a lot of optimizations and features missing
-- Invoking JSON0-ot-diff on every edit is not very efficient
-- A better way would be to either [manually annotate the various slate operations](https://github.com/qqwee/slate-ottype) or to add a debounce of some sort. A debounce would tradeoff between granularity (import for good UX) versus performance. Of course there are other ways such as separate thread of computing operations using WebWrokers etc. The holy grail would be to implement the transformation function using Slate's [native Operation type](https://github.com/ianstormtaylor/slate/blob/master/packages/slate/src/interfaces/operation.ts). (there are 9 operations, but that takes a lot of time so it is faster to piggy back off ShareDB unless you have a team of engineers willing to build a solution from ground up.)
+- Invoking JSON0-ot-diff on every edit [is not very efficient](https://github.com/ottypes/json1/issues/13)
+- A better way would be to either [manually annotate the various slate operations](https://github.com/qqwee/slate-ottype) or to add a debounce of some sort. A debounce would trade off between granularity (important for good UX) versus performance. Of course there are other ways such as separate thread of computing operations using WebWorkers etc. The holy grail would be to implement the transformation function using Slate's [native Operation type](https://github.com/ianstormtaylor/slate/blob/master/packages/slate/src/interfaces/operation.ts). (there are 9 operations, but that takes a lot of time to build and debug so it is faster to piggy back off ShareDB unless you have a team of engineers willing to build a solution from ground up.)
 - Multi-cursors, presence, live chat etc. are left as an exercise to the reader.
 ## Literature
 
