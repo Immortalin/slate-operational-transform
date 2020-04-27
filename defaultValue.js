@@ -1,6 +1,9 @@
-
 const defaultValue = {
-  selection: { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } }, children: [
+  selection: {
+    anchor: { path: [0, 0], offset: 0 },
+    focus: { path: [0, 0], offset: 0 },
+  },
+  value: [
     {
       type: 'paragraph',
       children: [
@@ -35,7 +38,7 @@ const defaultValue = {
       type: 'paragraph',
       children: [{ text: 'Try it out for yourself!' }],
     },
-  ]
-}
+  ],
+};
 
-module.exports = defaultValue
+module.exports = defaultValue;
