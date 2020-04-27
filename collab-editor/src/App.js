@@ -23,15 +23,11 @@ const HOTKEYS = {
 const LIST_TYPES = ['numbered-list', 'bulleted-list']
 
 const RichTextExample = () => {
-  // const [transmitQueue, enQueue] = useState([])
-  // const [oldValue, setOldValue] = useState()
-  const oldValue = useRef()
   useEffect(() => {
     doc.subscribe(() => {
       console.log("Subscribed:")
       console.log(doc.data)
       syncMutex.current = true
-      // editor.selection = doc.data.selection
       setValue(doc.data.children)
       syncMutex.current = false
     })
@@ -47,31 +43,9 @@ const RichTextExample = () => {
 
   }, [])
 
-  // useEffect(() => {
-  //   ws_client.onmessage = msg => {
-  //     // console.log(msg.data)
-  //     const ops = JSON.parse(msg.data)
-
-  //     // ops.forEach(op => {
-  //     //   console.log("Received:")
-  //     //   console.log(op)
-  //     //   editor.apply(op)
-  //     // });
-  //     syncMutex.current = true
-  //     Editor.withoutNormalizing(editor, () => {
-  //       ops.forEach(op => {
-  //         console.log("Received:")
-  //         console.log(op)
-  //         editor.apply(op)
-  //       });
-  //     })
-  //     syncMutex.current = true
-  //   }
-  // })
-
-
 
   const [value, setValue] = useState(initialValue)
+  const oldValue = useRef()
   const oldSelection = useRef({ anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } })
   // const [value, setValue] = useState([])
   const renderElement = useCallback(props => <Element {...props} />, [])
@@ -91,20 +65,14 @@ const RichTextExample = () => {
     <Slate editor={editor} value={value} onChange={newChildren => {
       oldValue.current = { selection: oldSelection.current, children: value }
       const diff = jsondiff(oldValue, { selection: editor.selection, children: newChildren })
-      // setValue(newValue)
       oldSelection.current = editor.selection
-      if (oldValue !== undefined) {
-      }
-      // console.log(editor.value)
       if (!syncMutex.current) {
-        // if (diff.length > 0) {
+        // a quick optimisation to only send if array is not empty
         if (Array.isArray(diff) && diff.length) {
           console.log("diff:")
           console.log(diff)
           sendOp(diff)
         }
-        // ws_client.send(JSON.stringify(editor.operations))
-        // ws_client.send(JSON.stringify(editor.operations.filter((op) => op.type !== "set_selection")))
       }
     }
     }>
