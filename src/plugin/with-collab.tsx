@@ -51,18 +51,19 @@ export const withCollab = <T extends Editor & ReactEditor>(editor: T, config: Co
       case 'remove_node':
       case 'remove_text':
       case 'set_node':
+      case 'set_selection':
       case 'merge_node':
       case 'split_node':
-        console.log('before transform:', draftEditor.children?.[0]?.children)
+        console.log('before transform:', draftEditor.children?.[0]?.children, draftEditor.selection)
         Editor.transform(draftEditor, slateOp)
-        console.log('after transform:', draftEditor.children?.[0]?.children)
+        console.log('after transform:', draftEditor.children?.[0]?.children, draftEditor.selection)
         const json1Op = [
           json1.replaceOp(['value'], editor.children, draftEditor.children),
           json1.replaceOp(['selection'], editor.selection, draftEditor.selection),
         ]
-        return sendOp(json1Op)
+        return e.doc.data && sendOp(json1Op)
     }
-    apply(slateOp)
+    // apply(slateOp)
   }
 
   return e
