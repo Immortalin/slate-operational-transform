@@ -9,6 +9,8 @@ import Blurt from './package.json'
 // const CJS = 'commonjs2'
 const UMD = 'umd2'
 
+// TODO: Figure out how to build declaration files (i.e. *.d.ts).
+
 const configure = target => {
   return {
     mode: 'production',
