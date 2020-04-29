@@ -1,26 +1,30 @@
-import * as Sharedb from 'sharedb/lib/client'
+import * as ShareDB from 'sharedb/lib/client'
 
 import { CollabEditor } from './collab-editor'
 import { Editor } from 'slate'
 import { ReactEditor } from 'slate-react'
 import json1 from 'ot-json1'
-import * as WS from 'ws'
 
 type CollabConfig = {
   collectionName: string
   documentId: string
-  webSocket: WebSocket | WS
+  webSocket: WebSocket
 }
 
+// @ts-ignore
+ShareDB.types.register(json1.type)
+
 export const withCollab = <T extends Editor & ReactEditor>(editor: T, config: CollabConfig) => {
-  const e = editor as T & CollabEditor
+  const { collectionName, documentId, webSocket } = config
+  const e: CollabEditor & T = {
+    ...editor,
+    doc: new ShareDB.Connection(webSocket).get(collectionName, documentId),
+    syncMutex: false,
+  }
   const { apply } = e
 
-  const { collectionName, documentId, webSocket } = config
-  e.doc = new Sharedb.Connection(webSocket).get(collectionName, documentId)
-
   const sendOp = (ops: json1.JSONOp[]) => {
-    // Ignore: @types/sharedb does not allow different OTType in submitOp
+    // TODO: @types/sharedb does not allow different OTType in submitOp
     // @ts-ignore
     e.doc.submitOp(ops)
   }
@@ -39,7 +43,7 @@ export const withCollab = <T extends Editor & ReactEditor>(editor: T, config: Co
     if (type === 'insert_text') {
       const { path, offset, text } = slateOp
       const json1Op = [json1.editOp(CollabEditor.pathToJson1Path(path), 'text-unicode', [offset, text])]
-      return sendOp(json1Op)
+      // return sendOp(json1Op)
     }
     apply(slateOp)
   }

@@ -20,13 +20,11 @@ const defaultValue = {
       type: 'paragraph',
       children: [
         {
-          text:
-            "Since it's rich text, you can do things like turn a selection of text ",
+          text: "Since it's rich text, you can do things like turn a selection of text ",
         },
         { text: 'bold', bold: true },
         {
-          text:
-            ', or add a semantically rendered block quote in the middle of the page, like this:',
+          text: ', or add a semantically rendered block quote in the middle of the page, like this:',
         },
       ],
     },
@@ -39,6 +37,6 @@ const defaultValue = {
       children: [{ text: 'Try it out for yourself!' }],
     },
   ],
-};
+}
 
-module.exports = defaultValue;
+module.exports = defaultValue
