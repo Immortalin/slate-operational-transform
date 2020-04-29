@@ -27,6 +27,12 @@ const RichTextExample = () => {
     doc.subscribe(() => {
       console.log("Subscribed:")
       console.log(doc.data)
+      myId.current = Math.max(...Object.keys(doc.data.users))
+      users.current = doc.data.users
+      console.log("My ID:")
+      console.log(myId.current)
+      console.log("Total users:")
+      console.log(users)
       syncMutex.current = true
       setValue(doc.data.children)
       syncMutex.current = false
@@ -46,6 +52,8 @@ const RichTextExample = () => {
 
   const [value, setValue] = useState(initialValue)
   const oldValue = useRef()
+  const myId = useRef()
+  const users = useRef()
   const oldSelection = useRef({ anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } })
   // const [value, setValue] = useState([])
   const renderElement = useCallback(props => <Element {...props} />, [])
@@ -63,7 +71,7 @@ const RichTextExample = () => {
 
   return (
     <Slate editor={editor} value={value} onChange={newChildren => {
-      oldValue.current = { selection: oldSelection.current, children: value }
+      oldValue.current = {users: users.current, selection: oldSelection.current, children: value }
       const diff = jsondiff(oldValue, { selection: editor.selection, children: newChildren })
       oldSelection.current = editor.selection
       if (!syncMutex.current) {
