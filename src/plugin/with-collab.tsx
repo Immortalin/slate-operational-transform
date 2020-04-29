@@ -11,7 +11,7 @@ type CollabConfig = {
   webSocket: WebSocket
 }
 
-// ShareDB does not have proper types
+// ShareDB does not have types
 // @ts-ignore
 ShareDB.types.register(json1.type)
 
@@ -42,12 +42,15 @@ export const withCollab = <T extends Editor & ReactEditor>(editor: T, config: Co
 
     const draftEditor = { ...e }
 
-    const { type } = slateOp
-
     // TODO: Selection is not handled correctly
-    switch (type) {
-      case 'insert_node':
+    switch (slateOp.type) {
       case 'insert_text':
+        const { path, offset, text } = slateOp
+        const inserTextJson1Op = [
+          json1.editOp(CollabEditor.pathToJson1Path(path).concat(['text']), 'text-unicode', [offset, text]),
+        ]
+        return e.doc.data && sendOp(inserTextJson1Op)
+      case 'insert_node':
       case 'move_node':
       case 'remove_node':
       case 'remove_text':
