@@ -1,18 +1,17 @@
-import { Path } from 'slate'
-import { ReactEditor } from 'slate-react'
+import { Path, Editor } from 'slate'
 import sharedb from 'sharedb'
 
-export type CollabEditor = {
+export interface CollabEditor extends Editor {
   doc: sharedb.Doc
   syncMutex: boolean
-} & ReactEditor
+}
 
 export const CollabEditor = {
   pathToJson1Path: (path: Path) => {
-    let json1Path: Array<string | number> = []
+    let json1Path: Array<string | number> = ['value']
     for (let i = 0; i < path.length; i++) {
       const p = path[i]
-      json1Path = json1Path.concat(['children', p])
+      json1Path = json1Path.concat(i === 0 ? [p] : ['children', p])
     }
     return json1Path
   },

@@ -2,11 +2,11 @@ import React, { FC, useEffect, useRef, useState } from 'react'
 import { Node, Range } from 'slate'
 
 import { CollabEditor } from '../plugin/collab-editor'
-import { Slate } from 'slate-react'
+import { Slate, ReactEditor } from 'slate-react'
 
 type SlateCollabProps = {
   [key: string]: any
-  editor: CollabEditor
+  editor: CollabEditor & ReactEditor
   onChange?: (value: Node[]) => void
 }
 
@@ -17,8 +17,6 @@ export const SlateCollab: FC<SlateCollabProps> = ({ editor, children, onChange }
     anchor: { path: [0, 0], offset: 0 },
     focus: { path: [0, 0], offset: 0 },
   })
-
-  console.log(editor)
 
   useEffect(() => {
     const { doc } = editor
@@ -36,14 +34,15 @@ export const SlateCollab: FC<SlateCollabProps> = ({ editor, children, onChange }
       setValue(doc.data.value)
       editor.syncMutex = false
     })
-  }, [editor.doc, editor.syncMutex])
+  }, [])
 
   return (
     <Slate
       editor={editor}
       value={value}
       onChange={newValue => {
-        // oldSelection.current = editor.selection
+        oldSelection.current = editor.selection
+        // setValue(newValue)
         onChange && onChange(newValue)
       }}
     >

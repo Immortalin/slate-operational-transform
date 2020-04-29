@@ -16,12 +16,12 @@ ShareDB.types.register(json1.type)
 
 export const withCollab = <T extends Editor & ReactEditor>(editor: T, config: CollabConfig) => {
   const { collectionName, documentId, webSocket } = config
-  const e: CollabEditor & T = {
-    ...editor,
-    doc: new ShareDB.Connection(webSocket).get(collectionName, documentId),
-    syncMutex: false,
-  }
+
+  const e = editor as T & CollabEditor
   const { apply } = e
+
+  e.doc = new ShareDB.Connection(webSocket).get(collectionName, documentId)
+  e.syncMutex = false
 
   const sendOp = (ops: json1.JSONOp[]) => {
     // TODO: @types/sharedb does not allow different OTType in submitOp
@@ -39,11 +39,27 @@ export const withCollab = <T extends Editor & ReactEditor>(editor: T, config: Co
     operations.length === 0 && console.log('---', { value: editorNode.children })
     console.log('>', operations.length, slateOp)
 
+    const draftEditor = { ...e }
+
     const { type } = slateOp
-    if (type === 'insert_text') {
-      const { path, offset, text } = slateOp
-      const json1Op = [json1.editOp(CollabEditor.pathToJson1Path(path), 'text-unicode', [offset, text])]
-      // return sendOp(json1Op)
+
+    // TODO: Selection is not handled correctly
+    switch (type) {
+      case 'insert_node':
+      case 'insert_text':
+      case 'move_node':
+      case 'remove_node':
+      case 'set_node':
+      case 'merge_node':
+      case 'split_node':
+        console.log('before transform:', draftEditor.children?.[0]?.children)
+        Editor.transform(draftEditor, slateOp)
+        console.log('after transform:', draftEditor.children?.[0]?.children)
+        const json1Op = [
+          json1.replaceOp(['value'], editor.children, draftEditor.children),
+          json1.replaceOp(['selection'], editor.selection, draftEditor.selection),
+        ]
+        return sendOp(json1Op)
     }
     apply(slateOp)
   }
