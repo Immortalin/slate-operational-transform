@@ -49,6 +49,7 @@ export const withCollab = <T extends Editor & ReactEditor>(editor: T, config: Co
       case 'insert_text':
       case 'move_node':
       case 'remove_node':
+      case 'remove_text':
       case 'set_node':
       case 'merge_node':
       case 'split_node':
