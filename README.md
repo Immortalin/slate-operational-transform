@@ -1,20 +1,38 @@
-# Slate JS Editor Operational Transform Example using ShareDB
+# Slate Collab 
 
-## Instructions
+Slate plugin adding collaboration via JSON1 OT and ShareDB.
+
+## Running Example
+
+Need to `yarn link` both `react` and `react-dom` from root to `/example/web`.
+
+Run web:
+
 ```shell
-cd slate-operational-transform
-npm install
-npm start
-
+yarn
+cd node_modules/react
+yarn link
+cd ../react-dom
+yarn link
+cd ../example/web
+yarn
+yarn link react
+yarn link react-dom
+yarn dev
 ```
-And in another shell
+
+Run server:
+
 ```shell
-cd slate-operational-transform/collab_editor 
-yarn install
+cd example/server 
+yarn
 yarn start
 ```
-Open two different browsers and navigate to `localhost:3000`, all changes in one browser should be mirrored in another.
+
+Open two different browsers and navigate to `localhost:3000`. All changes in one browser are mirrored in the other.
+
 ## Caveat Emptor
+
 - This is a demo, there are a lot of optimizations and features missing.
 - Invoking JSON0-ot-diff on every edit [is not very efficient](https://github.com/ottypes/json1/issues/13).
 - A better way would be to either [manually annotate the various slate operations](https://github.com/qqwee/slate-ottype) or to add a debounce of some sort. A debounce would trade off between granularity (important for good UX) versus performance. Of course there are other ways such as separate thread of computing operations using WebWorkers, or perhaps rewrite the core algorithm in WebAssembly. If you paste a large body of text there is a second or two of lag as diff function has to catch up. The holy grail would be to implement the transformation function using Slate's [native Operation type](https://github.com/ianstormtaylor/slate/blob/master/packages/slate/src/interfaces/operation.ts). (there are 9 operations, but that takes a lot of time to build and debug so it is faster to piggy back off ShareDB unless you have a team of engineers willing to build a solution from ground up.)

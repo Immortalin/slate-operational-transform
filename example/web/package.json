@@ -1,0 +1,22 @@
+{
+  "name": "slate-operational-transform-web-example",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next"
+  },
+  "dependencies": {
+    "emotion": "^10.0.27",
+    "next": "^9.3.6",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "slate-history": "^0.57.2"
+  },
+  "devDependencies": {
+    "@types/node": "^13.13.4",
+    "@types/react": "^16.9.34",
+    "path": "^0.12.7",
+    "typescript": "^3.8.3",
+    "webpack": "^4.43.0"
+  }
+}

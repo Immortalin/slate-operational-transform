@@ -1,18 +1,46 @@
 {
-  "name": "collab-server",
-  "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "name": "slate-operational-transform",
+  "version": "0.0.0",
+  "private": true,
+  "main": "dist/index.js",
+  "repository": "https://github.com/Immortalin/slate-operational-transform.git",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "prepare": "install-peers",
+    "build": "yarn build:webpack && yarn build:types",
+    "build:webpack": "webpack",
+    "build:types": "npx tsc src/index.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@teamwork/websocket-json-stream": "^2.0.0",
-    "sharedb": "^1.3.3",
-    "slate": "^0.57.2",
-    "ws": "^7.2.3"
+    "ot-json1": "^0.2.4",
+    "sharedb": "^1.3.3"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0",
+    "slate": ">=0.55.0",
+    "slate-react": "^0.57.2"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.9.0",
+    "@babel/preset-env": "^7.9.5",
+    "@babel/preset-react": "^7.9.4",
+    "@babel/preset-typescript": "^7.9.0",
+    "@babel/register": "^7.9.0",
+    "@stavalfi/babel-plugin-module-resolver-loader": "^1.4.0",
+    "@types/react": "^16.9.34",
+    "@types/react-dom": "^16.9.7",
+    "@types/sharedb": "^1.0.7",
+    "@types/ws": "^7.2.4",
+    "babel-loader": "^8.1.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "core-js": "^3.6.5",
+    "install-peers-cli": "^2.2.0",
+    "react": ">=16.8.0",
+    "slate": ">=0.55.0",
+    "slate-react": "^0.57.2",
+    "tsconfig-paths-webpack-plugin": "^3.2.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11",
+    "webpack-node-externals": "^1.7.2"
   }
 }
