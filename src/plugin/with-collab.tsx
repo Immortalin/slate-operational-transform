@@ -11,6 +11,7 @@ type CollabConfig = {
   webSocket: WebSocket
 }
 
+// ShareDB does not have proper types
 // @ts-ignore
 ShareDB.types.register(json1.type)
 
@@ -63,10 +64,7 @@ export const withCollab = <T extends Editor & ReactEditor>(editor: T, config: Co
         ]
         return e.doc.data && sendOp(json1Op)
     }
-    // apply(slateOp)
   }
 
   return e
 }
-
-// Empty placeholder for initial load, editor will fetch ground truth from server
