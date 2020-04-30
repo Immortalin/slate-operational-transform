@@ -1,7 +1,8 @@
 
 const defaultValue = {
-  users: {0: {}},
-  selection: { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } }, children: [
+  users: { 0: { placeholder: true } },
+  // selection: { anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } }, 
+  children: [
     {
       type: 'paragraph',
       children: [

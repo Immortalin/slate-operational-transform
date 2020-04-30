@@ -1,0 +1,41 @@
+{
+  "name": "slate-cursor-indicator",
+  "version": "0.0.2",
+  "description": "A users' cursors position indicator for slatejs collaborative editing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/humandx/slate-cursor-indicator.git"
+  },
+  "keywords": [
+    "slate",
+    "collaboration",
+    "cursor",
+    "indicator",
+    "editor",
+    "user",
+    "typing"
+  ],
+  "author": "Human Diagnosis Project",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/humandx/slate-cursor-indicator/issues"
+  },
+  "scripts": {
+    "build": "babel src --out-dir lib"
+  },
+  "homepage": "https://github.com/humandx/slate-cursor-indicator#readme",
+  "peerDependencies": {
+    "slate": "*",
+    "react": "*"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "eslint": "^4.10.0"
+  }
+}

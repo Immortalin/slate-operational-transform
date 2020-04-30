@@ -6,6 +6,12 @@ const share = new ShareDB()
 const connection = share.connect()
 const doc = connection.get("my_documents", "hello_world")
 
+function noop() { }
+
+function heartbeat() {
+    this.isAlive = true;
+}
+
 doc.create(defaultValue, () => {
 
     const port = 9080
@@ -17,6 +23,8 @@ doc.create(defaultValue, () => {
         //   ws.on('message', function incoming(message) {
         //     console.log('received: %s', message);
         //   });
+        ws.isAlive = true;
+        ws.on('pong', heartbeat);
 
         //   ws.send('something');
         const user_key = req.headers['sec-websocket-key']
@@ -32,9 +40,7 @@ doc.create(defaultValue, () => {
             share.listen(json_stream)
         })
 
-        // Note this is naive solution, for production see: 
-        // https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
-        ws.on('close', () => {
+        const delete_user = () => {
             console.log("Users before deletion:")
             console.log(doc.data.users)
             const user_id = user_map.get(user_key)
@@ -43,6 +49,24 @@ doc.create(defaultValue, () => {
                 console.log(doc.data.users)
             })
             user_map.delete(user_key)
+        }
+
+        // https://github.com/websockets/ws#how-to-detect-and-close-broken-connections
+        const interval = setInterval(function ping() {
+            wss.clients.forEach(function each(ws) {
+                if (ws.isAlive === false) {
+                    delete_user()
+                    return ws.terminate();
+                }
+
+                ws.isAlive = false;
+                ws.ping(noop);
+            });
+        }, 30000);
+
+        ws.on('close', () => {
+            delete_user()
+            clearInterval(interval)
         })
 
     })

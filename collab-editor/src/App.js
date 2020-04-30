@@ -1,13 +1,14 @@
 import React, { useCallback, useMemo, useState, useEffect, useRef } from 'react'
 import isHotkey from 'is-hotkey'
 import { Editable, withReact, useSlate, Slate } from 'slate-react'
-import { Editor, Transforms, createEditor } from 'slate'
+import { Editor, Transforms, Text, createEditor } from 'slate'
 import { withHistory } from 'slate-history'
 
 import { Button, Icon, Toolbar } from './Components'
 import ReconnectingWebSocket from 'reconnecting-websocket';
 import * as sharedb from 'sharedb/lib/client'
 import * as jsondiff from 'json0-ot-diff'
+import { css } from 'emotion'
 
 const ws_client = new ReconnectingWebSocket("ws://localhost:9080")
 const connection = new sharedb.Connection(ws_client)
@@ -28,11 +29,11 @@ const RichTextExample = () => {
       console.log("Subscribed:")
       console.log(doc.data)
       myId.current = Math.max(...Object.keys(doc.data.users))
-      users.current = doc.data.users
+      current_users.current = doc.data.users
       console.log("My ID:")
       console.log(myId.current)
       console.log("Total users:")
-      console.log(users)
+      console.log(current_users.current)
       syncMutex.current = true
       setValue(doc.data.children)
       syncMutex.current = false
@@ -42,7 +43,7 @@ const RichTextExample = () => {
       console.log("Op:")
       console.log(doc.data)
       syncMutex.current = true
-      editor.selection = doc.data.selection
+      // editor.selection = doc.data.selection
       setValue(doc.data.children)
       syncMutex.current = false
     })
@@ -53,8 +54,9 @@ const RichTextExample = () => {
   const [value, setValue] = useState(initialValue)
   const oldValue = useRef()
   const myId = useRef()
-  const users = useRef()
-  const oldSelection = useRef({ anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } })
+  // const users = useRef()
+  // const oldSelection = useRef({ anchor: { path: [0, 0], offset: 0 }, focus: { path: [0, 0], offset: 0 } })
+  const current_users = useRef([])
   // const [value, setValue] = useState([])
   const renderElement = useCallback(props => <Element {...props} />, [])
   const renderLeaf = useCallback(props => <Leaf {...props} />, [])
@@ -69,19 +71,49 @@ const RichTextExample = () => {
     })
   }
 
+  const decorate = useCallback(([node, path]) => {
+    let ranges = []
+    console.log(path)
+    if (current_users.current.length !== 0 && Text.isText(node)) {
+      // code needs refactoring, current code seems inefficient
+      const selections = Object.values(doc.data.users).filter((entry) => !entry.hasOwnProperty("placeholder") && entry.hasOwnProperty("anchor") && entry.hasOwnProperty("focus"))
+      // selections.forEach((entry) => {
+      //     console.log(entry)
+      //   if (entry.anchor.path === path || entry.focus.path === path) {
+      //     ranges.push(entry)
+      //   }
+      // })
+      console.log("decorating..")
+      // console.log(current_selections.current)
+      // console.log(doc.data.users)
+
+      //  if (Text.isText(node)){}
+
+      // console.log(ranges)
+      ranges = selections
+    }
+    return ranges
+  }, [current_users.current])
+
   return (
     <Slate editor={editor} value={value} onChange={newChildren => {
-      oldValue.current = {users: users.current, selection: oldSelection.current, children: value }
-      const diff = jsondiff(oldValue, { selection: editor.selection, children: newChildren })
-      oldSelection.current = editor.selection
-      if (!syncMutex.current) {
-        // a quick optimisation to only send if array is not empty
-        if (Array.isArray(diff) && diff.length) {
-          console.log("diff:")
-          console.log(diff)
-          sendOp(diff)
+      oldValue.current = { users: current_users.current, children: value }
+      if (typeof doc.data !== 'undefined') {
+        doc.data.users[myId.current.toString()] = { ...editor.selection, is_selected: true }
+        // current_users.current = doc.data.users
+        // console.log(current_users.current)
+        const diff = jsondiff(oldValue, { users: doc.data.users, children: newChildren })
+
+        if (!syncMutex.current) {
+          // a quick optimisation to only send if array is not empty
+          if (Array.isArray(diff) && diff.length) {
+            console.log("diff:")
+            console.log(diff)
+            sendOp(diff)
+          }
         }
       }
+      // oldSelection.current = editor.selection
     }
     }>
       <Toolbar>
@@ -98,6 +130,7 @@ const RichTextExample = () => {
       <Editable
         renderElement={renderElement}
         renderLeaf={renderLeaf}
+        decorate={decorate}
         placeholder="Enter some rich text…"
         spellCheck
         autoFocus
@@ -176,7 +209,26 @@ const Element = ({ attributes, children, element }) => {
   }
 }
 
+const mystyle = {
+  borderColor: 'red',
+  padding: '5px',
+}
+
 const Leaf = ({ attributes, children, leaf }) => {
+  if (leaf.is_selected) {
+    console.log("I AM SELECTED!!!")
+    children =
+      <span
+        {...attributes}
+        className={css`
+        background-color: ${leaf.is_selected && '#ffeeba'};
+      `}
+      >
+        {children}
+        <span style={mystyle}></span>
+      </span>
+  }
+
   if (leaf.bold) {
     children = <strong>{children}</strong>
   }
