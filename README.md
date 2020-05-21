@@ -1,6 +1,7 @@
 # Slate JS Editor Operational Transform Example using ShareDB
 
 ## Instructions
+Cursors are WIP, for testing please use https://github.com/Immortalin/slate-operational-transform/tree/00e56152355535416a1007ffca296b7bfcfd7b22
 ```shell
 cd slate-operational-transform
 npm install
